@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/SimpleFlashCard">
+        <file alias="icon_png">SimpleFlashCard/icon.png</file>
+        <file alias="index_html">SimpleFlashCard/index.html</file>
+        <file alias="info_plist">SimpleFlashCard/info.plist</file>
+        <file alias="style_css">SimpleFlashCard/style/simpleflashcard.css</file>
+        <file alias="ajax_js">SimpleFlashCard/script/Ajax.js</file>
+        <file alias="flashcards_js">SimpleFlashCard/script/flashcards.js</file>
+        <file alias="main_js">SimpleFlashCard/script/main.js</file>
+    </qresource>
+</RCC>

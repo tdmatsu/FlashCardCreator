@@ -1,0 +1,66 @@
+
+
+body
+{
+	width:98%;
+/*	color:white; */
+/*	background-image: url(../gfx/background.jpg);*/
+	background-repeat: repeat-x;
+}
+/*
+a:link
+{
+	color:white;
+}
+
+a:visited
+{
+	color:white;
+}
+
+a:hover
+{
+	color:yellow;
+}
+
+a:active
+{
+	color:yellow;
+}
+*/
+
+#lblInfo
+{
+	font-size:16pt;
+}
+
+#lblLang1
+{
+	font-size:26pt;
+}
+
+#lblLang2
+{
+	font-size:26pt;
+}
+
+#lblNext
+{
+	font-size:42pt;
+	text-align:center;
+	width:48%;
+	float:left;
+}
+
+#lblDone
+{
+	font-size:42pt;
+	text-align:center;
+	width:48%;
+	float:right;
+}
+
+#page_debug
+{
+	color:red;
+}
