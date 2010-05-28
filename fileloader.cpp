@@ -4,6 +4,15 @@
 #include <QFile>
 
 const QString OUTPUT_FOLDER_NAME = "Output";
+const QString OUTPUT_WIDGET_FOLDER_NAME = "SimpleFlashCard";
+
+const QString OUTPUT_WIDGET_STYLE_FOLDER_NAME = "style";
+const QString OUTPUT_WIDGET_SCRIPT_FOLDER_NAME = "script";
+const QString OUTPUT_WIDGET_DATA_FOLDER_NAME = "data";
+
+const QString FILENAME_FILELIST_JS = "filelist.js";
+const QString FILENAME_RENAME_BAT = "rename.bat";
+
 
 FileLoader::FileLoader(QObject * parent)
     : QAbstractTableModel(parent)
@@ -18,18 +27,18 @@ void FileLoader::loadFiles(QStringList fileNames)
     Q_ASSERT(!fileNames.isEmpty());
 
     for (int i = 0; i < fileNames.size(); i++){
-        qDebug () << fileNames.at(i);
+        qDebug () << fileNames[i];
 
 
         // read the CSV data
-        QFile file(fileNames.at(i));
+        QFile file(fileNames[i]);
 
         // open the file
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
             qDebug() << "failed to open input file";
         } else {
 
-            qDebug() << "reading file... " << fileNames.at(i);
+            qDebug() << "reading file... " << fileNames[i];
 
             QStringList lstEntries;
 
@@ -40,7 +49,10 @@ void FileLoader::loadFiles(QStringList fileNames)
 
             qDebug() << lstEntries.size() << " entries";
 
-            FlashCards* flashCards = new FlashCards(lstEntries, fileNames.at(i),this);
+            QString fileXMLName = fileNames[i];
+            fileXMLName = fileXMLName.mid(fileXMLName.lastIndexOf("/") + 1);
+            fileXMLName = fileXMLName.left(fileXMLName.size() - 4) + ".xml";
+            FlashCards* flashCards = new FlashCards(lstEntries, fileNames[i], fileXMLName, this);
 
             // add the entries
             m_lstFlashCards.append(flashCards);
@@ -84,10 +96,10 @@ QVariant FileLoader::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         switch (index.column()){
         case enumFileName:
-            ret = m_lstFlashCards.at(index.row())->fileName();
+            ret = m_lstFlashCards[index.row()]->filePath();
             break;
         case enumNumOfEntries:
-            ret = m_lstFlashCards.at(index.row())->entries().size();
+            ret = m_lstFlashCards[index.row()]->entries().size();
             break;
         default:
             break;
@@ -122,6 +134,10 @@ QVariant FileLoader::headerData(int section, Qt::Orientation orientation, int ro
 #include <QDir>
 #include <QFileDialog>
 
+/*
+
+  dstPath = path specified by the user
+*/
 void FileLoader::createFlashCards(QString dstPath)
 {
     if(!QDir(dstPath).exists()){
@@ -131,66 +147,83 @@ void FileLoader::createFlashCards(QString dstPath)
 
     qDebug() << "FileLoader::createFlashCards() Destination = " << dstPath;
 
-    // create the output folder
+    QString strOutputFolder;       // output folder
+    QDir dirOutput;
+
+    // Creating output folder
+    // In case of name conflicts, it will append "(n)" to the folder name, n being an incremental number
+    // The path to the created folder is stored to dirOutput
     QString folderName = OUTPUT_FOLDER_NAME;
-    QString strDstFolder;
-    int i = 1;
-    while (1){
-        strDstFolder = dstPath + "/" + folderName;
-        if (QDir(strDstFolder).exists()){
+
+    for (int i = 1; ;i++){
+        // coin the output folder path
+        dirOutput.setPath(dstPath + "/" + folderName);
+        // does it already exist?
+        if (dirOutput.exists()){
             folderName = OUTPUT_FOLDER_NAME + "(" + QString::number(i) + ")";
-            i++;
             if (i > 1000){
+                // Folders "Output(1...1000)" are already in the same directory, which is not unlikely to happen
                 emit fileLoaderError("Output directory coudn't be created!");
                 return;
             }
         } else {
-            folderName += "/SimpleFlashCard";
-            strDstFolder += "/SimpleFlashCard";
-            qDebug() << "Making output dir... ";
-            qDebug() << (QDir(dstPath).mkpath(folderName) ? "success :)" : "failed :(");
+            // output folder path determined (stored to dirOutput)
             break;
         }
     }
 
+    folderName += "/" + OUTPUT_WIDGET_FOLDER_NAME;
+    strOutputFolder += "/" + OUTPUT_WIDGET_FOLDER_NAME;
 
-    QString dirStyle = "style";
-    QString dirScript = "script";
-    QString dirData = "data";
+    // Create folders
+    qDebug() << "creating output folders...";
+    qDebug() << dirOutput.mkpath(OUTPUT_WIDGET_FOLDER_NAME + "/" + OUTPUT_WIDGET_STYLE_FOLDER_NAME);
+    qDebug() << dirOutput.mkpath(OUTPUT_WIDGET_FOLDER_NAME + "/" + OUTPUT_WIDGET_SCRIPT_FOLDER_NAME);
+    qDebug() << dirOutput.mkpath(OUTPUT_WIDGET_FOLDER_NAME + "/" + OUTPUT_WIDGET_DATA_FOLDER_NAME);
 
-    qDebug() << "creating folders...";
-    qDebug() << QDir(strDstFolder).mkdir(dirStyle);
-    qDebug() << QDir(strDstFolder).mkdir(dirScript);
-    qDebug() << QDir(strDstFolder).mkdir(dirData);
-
-    qDebug() << "copying files...";
-    qDebug() << QFile::copy(":/SimpleFlashCard/info_plist", strDstFolder + "/info.plist");
-    qDebug() << QFile::copy(":/SimpleFlashCard/icon_png", strDstFolder + "/icon.png");
-    qDebug() << QFile::copy(":/SimpleFlashCard/index_html", strDstFolder + "/index.html");
-    qDebug() << QFile::copy(":/SimpleFlashCard/style_css", strDstFolder + "/" + dirStyle + "/simpleflashcard.css");
-    qDebug() << QFile::copy(":/SimpleFlashCard/flashcards_js", strDstFolder + "/" + dirScript + "/flashcards.js");
-    qDebug() << QFile::copy(":/SimpleFlashCard/ajax_js", strDstFolder + "/" + dirScript + "/Ajax.js");
-    qDebug() << QFile::copy(":/SimpleFlashCard/main_js", strDstFolder + "/" + dirScript + "/main.js");
-
-
-
-
-    // export each set of flashcards
-    for (int i = 0; i < m_lstFlashCards.size(); i++){
-        QString strFileName = strDstFolder + "/" + dirData + "/" + m_lstFlashCards.at(i)->fileName().mid(m_lstFlashCards.at(i)->fileName().lastIndexOf("/") + 1);
-        strFileName = strFileName.left(strFileName.size() - 4) + ".xml";
-        QFile file(strFileName);
+    // Write rename.bat
+    {
+        QFile file(dirOutput.path() + "/" + FILENAME_RENAME_BAT);
         if (!file.open(QIODevice::WriteOnly | QIODevice::Text)){
-            emit fileLoaderError("Output file couldn't be opened!\n" + strFileName);
+            emit fileLoaderError("Couldn't open output file: " + file.fileName());
+            return;
+        }else{
+            file.write(QString("del " + OUTPUT_WIDGET_FOLDER_NAME + ".wgz\n").toUtf8());
+            file.write(QString("rename " + OUTPUT_WIDGET_FOLDER_NAME + ".zip " + OUTPUT_WIDGET_FOLDER_NAME + ".wgz\n").toUtf8());
+            file.close();
+        }
+    }
+
+    // Move to the widget directory (shouldn't fail)
+    Q_ASSERT(dirOutput.cd(OUTPUT_WIDGET_FOLDER_NAME));
+
+    // Copy files from the resource
+    qDebug() << "copying files...";
+    qDebug() << QFile::copy(":/SimpleFlashCard/info_plist", dirOutput.path() + "/info.plist");
+    qDebug() << QFile::copy(":/SimpleFlashCard/icon_png", dirOutput.path() + "/icon.png");
+    qDebug() << QFile::copy(":/SimpleFlashCard/index_html", dirOutput.path() + "/index.html");
+    qDebug() << QFile::copy(":/SimpleFlashCard/style_css", dirOutput.path() + "/" + OUTPUT_WIDGET_STYLE_FOLDER_NAME + "/simpleflashcard.css");
+    qDebug() << QFile::copy(":/SimpleFlashCard/flashcards_js", dirOutput.path() + "/" + OUTPUT_WIDGET_SCRIPT_FOLDER_NAME + "/flashcards.js");
+    qDebug() << QFile::copy(":/SimpleFlashCard/ajax_js", dirOutput.path() + "/" + OUTPUT_WIDGET_SCRIPT_FOLDER_NAME + "/Ajax.js");
+    qDebug() << QFile::copy(":/SimpleFlashCard/main_js", dirOutput.path() + "/" + OUTPUT_WIDGET_SCRIPT_FOLDER_NAME + "/main.js");
+
+    // Move to data folder (shouldn't fail)
+    Q_ASSERT(dirOutput.cd(OUTPUT_WIDGET_DATA_FOLDER_NAME));
+
+    // Export XML files
+    for (int i = 0; i < m_lstFlashCards.size(); i++){
+        QFile file(dirOutput.path() + "/" + m_lstFlashCards[i]->fileXMLName());
+        if (!file.open(QIODevice::WriteOnly | QIODevice::Text)){
+            emit fileLoaderError("Couldn't open output file: " + file.fileName());
             return;
         }else{
             file.write(QString("<flashcards>\n").toUtf8());
-            for (int j = 0; j < m_lstFlashCards.at(i)->entries().size(); j++){
-                QString line = m_lstFlashCards.at(i)->entries().at(j);
+            for (int j = 0; j < m_lstFlashCards[i]->entries().size(); j++){
+                QString line = m_lstFlashCards[i]->entries()[j];
                 line = line.trimmed();
                 if (line.indexOf("\t") != -1){
                     QStringList wrk = line.split("\t");
-                    QString writeline = "<entry><lang1>" + wrk.at(0) + "</lang1><lang2>" + wrk.at(1) + "</lang2></entry>\n";
+                    QString writeline = "<entry><lang1>" + wrk[0] + "</lang1><lang2>" + wrk[1] + "</lang2></entry>\n";
                     file.write(writeline.toUtf8());
                 }
             }
@@ -199,26 +232,26 @@ void FileLoader::createFlashCards(QString dstPath)
         }
     }
 
-/*
-    // show the number of entries
-    showMessage(QString().sprintf("%d entries", m_lstEntries.size()));
-    QString strFileName = m_strOutputDir;
-    strFileName.append("/test2.html");
-    QFile file(strFileName);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    // Writing filelist.js
     {
-        showMessage("failed to open output file");
-        showMessage(strFileName);
-        return;
+        QFile file(dirOutput.path() + "/" + FILENAME_FILELIST_JS);
+        if (!file.open(QIODevice::WriteOnly | QIODevice::Text)){
+            emit fileLoaderError("Couldn't open output file: " + file.fileName());
+            return;
+        }else{
+            file.write(QString("var xmlFileNames = [\n").toUtf8());
+            for (int i = 0; i < m_lstFlashCards.size(); i++){
+                QString writeline;
+                if (i == m_lstFlashCards.size() - 1){
+                    writeline = ",";
+                }
+                writeline += "\"" + m_lstFlashCards[i]->fileXMLName() + "\"\n";
+                file.write(writeline.toUtf8());
+            }
+            file.write(QString("];\n").toUtf8());
+            file.close();
+        }
     }
-
-    for (int i=0; i < m_lstEntries.size(); ++i)
-    {
-        file.write(m_lstEntries.at(i).toUtf8() + "\n");
-    }
-
-    file.close();
-*/
 
 }
 

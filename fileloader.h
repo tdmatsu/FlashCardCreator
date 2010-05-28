@@ -12,15 +12,18 @@ class FlashCards : public QObject
 
 private:
     QStringList m_entries;
-    QString m_fileName;
+    QString m_filePath;
+    QString m_fileXMLName;
 
     FlashCards();
 public:
-    FlashCards(QStringList entries, QString fileName, QObject*parent) : QObject(parent), m_entries(entries), m_fileName(fileName) {}
+    FlashCards(QStringList entries, QString filePath, QString fileXMLName, QObject*parent)
+        : QObject(parent), m_entries(entries), m_filePath(filePath), m_fileXMLName(fileXMLName) {}
     ~FlashCards() {}
 
     QStringList entries() const{return m_entries;}
-    QString fileName() const{return m_fileName;}
+    QString filePath() const{return m_filePath;}
+    QString fileXMLName() const{return m_fileXMLName;}
 };
 
 
