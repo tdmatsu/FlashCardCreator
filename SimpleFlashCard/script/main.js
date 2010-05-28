@@ -10,10 +10,6 @@ var ajaxRequest;
 var flashcards;
 var blnStartup = true;
 
-
-
-
-
 ////////////////////////////////////////////////////////////////////////////////
 // Debug utilities
 ////////////////////////////////////////////////////////////////////////////////
@@ -47,25 +43,6 @@ function _log(str_log)
 	strDebugLog += str_log;
 	strDebugLog += "<br/>";
 	$('debugOutputArea').innerHTML = strDebugLog;
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// Ajax functions                                                             //
-////////////////////////////////////////////////////////////////////////////////
-
-// Issues the AJAX request
-function loadXMLFile(fileName, callBack)
-{
-	_log("loadXMLFile fileName = " + fileName);
-	
-	// Send AJAX request
-	ajaxRequest = new Ajax();
-	
-	ajaxRequest.onreadystatechange = function () {callBack()};
-	ajaxRequest.open('GET', fileName, true);
-//	ajaxRequest( "Content-type", "text/xml" );
-	ajaxRequest.send(null);	
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -103,11 +80,11 @@ function initOnLoad()
 function initStartPage()
 {
 	var strwrk = "<SELECT id='selFileName'>";
-	for (var i = 0; i < xmlFileNames.length; i++){
-		strwrk = strwrk + "<OPTION value='" + xmlFileNames[i] + "'>" + xmlFileNames[i] + "<br>";
+	for (var i = 0; i < FlashCardCollectionNames.length; i++){
+		strwrk = strwrk + "<OPTION value='" + i + "'>" + FlashCardCollectionNames[i] + "<br>";
 	}
 	strwrk += "</SELECT><br>";
-	strwrk += "<input type='button' id='btnStart' value='START!' onclick='javascript:loadXMLFile(\"data/\" + $(\"selFileName\").value, loadComplete);'></input><br><br>";
+	strwrk += "<input type='button' id='btnStart' value='START!' onclick='javascript:gotoFlashCardPage();'></input><br><br>";
 	strwrk += "Key instructions<br>";
 	strwrk += "1: next<br>";
 	strwrk += "4 or 0: complete the card<br>";
@@ -150,70 +127,31 @@ function gotoStartPage()
 	$("page_flashcards").style.display = "none";
 }
 
-function loadComplete()
+//----------------------------------------------------------------------------------------------------------------------
+// gotoFlashCardPage
+//----------------------------------------------------------------------------------------------------------------------
+function gotoFlashCardPage()
 {
-	_log("loadComplete()!! state = " + ajaxRequest.readyState);
+	var entries = getFlashCards($("selFileName").value);
+	flashcards.setEntries(entries);
 	
-    if (ajaxRequest.readyState == 4 )
-    {
-		if (ajaxRequest.responseXML == null)
-		{
-			_log("ajaxRequest.responseXML == null!! xmlhttp.status = " + ajaxRequest.status);
-		}
-		else
-		{
-			parseFlashCards(ajaxRequest.responseXML);
+	flashcards.setAlwaysDone($("chkAlwaysDone").checked);
+	flashcards.setAutoPlay($("chkAutoPlay").checked, $("selSpeed").value);
+	flashcards.setShowControls($("chkShowControls").checked);
+	flashcards.setExitFunction("gotoStartPage()");
+	flashcards.startFlashCard();
 
-			flashcards.setAlwaysDone($("chkAlwaysDone").checked);
-			flashcards.setAutoPlay($("chkAutoPlay").checked, $("selSpeed").value);
-			flashcards.setShowControls($("chkShowControls").checked);
-			flashcards.setExitFunction("gotoStartPage()");
-			flashcards.startFlashCard();
-
-			$("page_start").style.display = "none";
-			$("page_flashcards").style.display = "block";
-		}
-	}
+	$("page_start").style.display = "none";
+	$("page_flashcards").style.display = "block";
 }
 
-
-////////////////////////////////////////////////////////////////////////////////
-// XML Parser
-////////////////////////////////////////////////////////////////////////////////
-
-//----------------------------------------------------------------------------------------------------------------------
-// parseFlashCards
-//----------------------------------------------------------------------------------------------------------------------
-function parseFlashCards(res_xml)
+function getFlashCards(index)
 {
-	_log("parseFlashCards");
-	
-	var entries = new Array;
-	
-	try {
-		var elmts = res_xml.getElementsByTagName('entry');
-	}catch (e){
-		_log(e);
+	 var ret = new Array();
+	 for(var i = 0; i < FlashCardCollection[index].length; i++){
+	 	ret[i] = FlashCardCollection[index][i];
 	}
-
-	if (elmts != undefined)
-	{
-		_log("Reading items... length = " + elmts.length);
-
-		for (var i = 0; i < elmts.length; i++)
-		{
-			var lang1 = elmts[i].getElementsByTagName('lang1')[0].firstChild.nodeValue;
-			var lang2 = elmts[i].getElementsByTagName('lang2')[0].firstChild.nodeValue;
-			
-			var newindex = entries.length;
-			entries[newindex] = lang1 + "\t" + lang2;
-			_log(entries[newindex])
-		}
-
-		_log("Reading done entries.lentgh = " + entries.length);
-	}
-	
-	flashcards.setEntries(entries);
+	return ret;
 }
 
 

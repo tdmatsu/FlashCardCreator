@@ -11,7 +11,7 @@ const QString OUTPUT_WIDGET_STYLE_FOLDER_NAME = "style";
 const QString OUTPUT_WIDGET_SCRIPT_FOLDER_NAME = "script";
 const QString OUTPUT_WIDGET_DATA_FOLDER_NAME = "data";
 
-const QString FILENAME_FILELIST_JS = "filelist.js";
+const QString FILENAME_DATA_JS = "data.js";
 const QString FILENAME_RENAME_BAT = "rename.bat";
 
 
@@ -206,48 +206,36 @@ void FileLoader::createFlashCards(QString dstPath)
     // Move to data folder (shouldn't fail)
     Q_ASSERT(dirOutput.cd(OUTPUT_WIDGET_DATA_FOLDER_NAME));
 
-    // Write XML files
-    for (int i = 0; i < m_lstFlashCards.size(); i++){
-        QFile file(dirOutput.path() + "/" + m_lstFlashCards[i]->fileXMLName());
-        if (!file.open(QIODevice::WriteOnly | QIODevice::Text)){
-            emit fileLoaderError("Couldn't open output file: " + file.fileName());
-            return;
-        }else{
-            file.write(QString("<flashcards>\n").toUtf8());
-            for (int j = 0; j < m_lstFlashCards[i]->entries().size(); j++){
+    // Write data.js
+    QFile file(dirOutput.path() + "/" + FILENAME_DATA_JS);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)){
+        emit fileLoaderError("Couldn't open output file: " + file.fileName());
+        return;
+    }else{
+        file.write(QString("var FlashCardCollection = new Array();\n").toUtf8());
+        file.write(QString("var FlashCardCollectionNames = new Array();\n\n").toUtf8());
+
+        for (int i = 0; i < m_lstFlashCards.size(); i++){   // collection loop
+            QString strwrk;
+            strwrk = "FlashCardCollectionNames[" + QString::number(i) + "] = '" + m_lstFlashCards[i]->fileName() + "';\n";
+            file.write(strwrk.toUtf8());
+            strwrk = "FlashCardCollection[" + QString::number(i) + "] = [\n";
+            file.write(strwrk.toUtf8());
+
+            for (int j = 0; j < m_lstFlashCards[i]->entries().size(); j++){     // entry loop
                 QString line = m_lstFlashCards[i]->entries()[j];
                 line = line.trimmed();
                 if (line.indexOf("\t") != -1){
+                    line.replace("\"","\"\"");
                     QStringList wrk = line.split("\t");
-                    QString writeline = "<entry><lang1>" + wrk[0] + "</lang1><lang2>" + wrk[1] + "</lang2></entry>\n";
+                    QString writeline = ",\"" + wrk[0] + "\\t" + wrk[1] + "\"" + "\n";
                     file.write(writeline.toUtf8());
                 }
             }
-            file.write(QString("</flashcards>\n").toUtf8());
-            file.close();
+            file.write(QString("];\n\n").toUtf8());
         }
+        file.close();
     }
-
-    // Write filelist.js
-    {
-        QFile file(dirOutput.path() + "/" + FILENAME_FILELIST_JS);
-        if (!file.open(QIODevice::WriteOnly | QIODevice::Text)){
-            emit fileLoaderError("Couldn't open output file: " + file.fileName());
-            return;
-        }else{
-            file.write(QString("var xmlFileNames = [\n").toUtf8());
-            for (int i = 0; i < m_lstFlashCards.size(); i++){
-                QString writeline = "\"" + m_lstFlashCards[i]->fileXMLName() + "\"\n";
-                if (i != m_lstFlashCards.size() - 1){
-                    writeline += ",";
-                }
-                file.write(writeline.toUtf8());
-            }
-            file.write(QString("];\n").toUtf8());
-            file.close();
-        }
-    }
-
 }
 
 
