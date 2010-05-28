@@ -116,16 +116,15 @@ void Dialog::showFiles(FileLoader* fileLoader)
     QTableView* table = ui->tableView;  // just for readability
 
     table->setModel(fileLoader);
+    table->horizontalHeader()->hide();
     table->verticalHeader()->hide();
 
-    table->setColumnWidth(0, 400);
-    table->setColumnWidth(1, 100);
+    table->setColumnWidth(0, table->width());
     table->horizontalHeader()->setResizeMode(QHeaderView::Fixed);
 
     for (int i = 0; i < table->model()->rowCount(); i++){
         table->setRowHeight(i, 20);
     }
-
 
     qDebug() << "Dialog::showFiles end";
 }

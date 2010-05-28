@@ -70,7 +70,7 @@ void FileLoader::loadFiles(QStringList fileNames)
 
 int FileLoader::columnCount(const QModelIndex & parent) const
 {
-    return 2;
+    return 1;
 }
 
 int FileLoader::rowCount(const QModelIndex &parent) const
@@ -80,31 +80,12 @@ int FileLoader::rowCount(const QModelIndex &parent) const
 
 QVariant FileLoader::data(const QModelIndex &index, int role) const
 {
-//    qDebug() << "data request: [" << index.row() << "," << index.column() << "] role:" << role;
-
     QVariant ret;
-/*
-    data request: [ 1 , 0 ] role: 6
-    data request: [ 1 , 0 ] role: 7
-    data request: [ 1 , 0 ] role: 9
-    data request: [ 1 , 0 ] role: 10
-    data request: [ 1 , 0 ] role: 1
-    data request: [ 1 , 0 ] role: 0
-    data request: [ 1 , 0 ] role: 8
-*/
+
     switch (role)
     {
     case Qt::DisplayRole:
-        switch (index.column()){
-        case enumFileName:
-            ret = m_lstFlashCards[index.row()]->filePath();
-            break;
-        case enumNumOfEntries:
-            ret = m_lstFlashCards[index.row()]->entries().size();
-            break;
-        default:
-            break;
-        }
+        ret = m_lstFlashCards[index.row()]->filePath() + " (" + QString::number(m_lstFlashCards[index.row()]->entries().size()) + " entries)";
         break;
     default:
         ret = QVariant(QVariant::Invalid);
@@ -189,9 +170,6 @@ void FileLoader::createFlashCards(QString dstPath)
     qDebug() << QFile::copy(":/SimpleFlashCard/flashcards_js", dirOutput.path() + "/" + OUTPUT_WIDGET_SCRIPT_FOLDER_NAME + "/flashcards.js");
     qDebug() << QFile::copy(":/SimpleFlashCard/ajax_js", dirOutput.path() + "/" + OUTPUT_WIDGET_SCRIPT_FOLDER_NAME + "/Ajax.js");
     qDebug() << QFile::copy(":/SimpleFlashCard/main_js", dirOutput.path() + "/" + OUTPUT_WIDGET_SCRIPT_FOLDER_NAME + "/main.js");
-
-    // Move to data folder (shouldn't fail)
-//    Q_ASSERT(dirOutput.cd(OUTPUT_WIDGET_DATA_FOLDER_NAME));
 
     // Write data.js
     QFile file(dirOutput.path() + "/" + OUTPUT_WIDGET_DATA_FOLDER_NAME + "/" + FILENAME_DATA_JS);
