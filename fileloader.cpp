@@ -237,11 +237,10 @@ void FileLoader::createFlashCards(QString dstPath)
         }else{
             file.write(QString("var xmlFileNames = [\n").toUtf8());
             for (int i = 0; i < m_lstFlashCards.size(); i++){
-                QString writeline;
-                if (i == m_lstFlashCards.size() - 1){
-                    writeline = ",";
+                QString writeline = "\"" + m_lstFlashCards[i]->fileXMLName() + "\"\n";
+                if (i != m_lstFlashCards.size() - 1){
+                    writeline += ",";
                 }
-                writeline += "\"" + m_lstFlashCards[i]->fileXMLName() + "\"\n";
                 file.write(writeline.toUtf8());
             }
             file.write(QString("];\n").toUtf8());
