@@ -8,7 +8,6 @@ function $(e){return document.getElementById(e);}
 var ajaxRequest;
 
 var flashcards;
-var blnStartup = true;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Debug utilities
@@ -45,10 +44,6 @@ function _log(str_log)
 	$('debugOutputArea').innerHTML = strDebugLog;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Goto functions                                                             //
-////////////////////////////////////////////////////////////////////////////////
-
 //----------------------------------------------------------------------------------------------------------------------
 // initOnLoad
 //----------------------------------------------------------------------------------------------------------------------
@@ -70,8 +65,20 @@ function initOnLoad()
 	// go to the start page
 	gotoStartPage();
 	
+	// set height of each pane
+	setParentSize();
+	$("page_start").style.height = "100%";
+	$("page_flashcards").style.height = "100%";
+	$("page_debug").style.height = "100%";
+	
 	// show/hide debug pane
 	$("page_debug").style.display = DEBUG ? "block" : "none";
+}
+
+function setParentSize()
+{
+	$("parent").style.height = (window.innerHeight - 20) + "px";
+	$("parent").style.width = (window.innerWidth - 20) + "px";
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -165,3 +172,10 @@ function keyPress(event)
 {
 	flashcards.handleKey(event.charCode);
 }
+
+//----------------------------------------------------------------------------------------------------------------------
+// onResize
+//----------------------------------------------------------------------------------------------------------------------
+//
+window.onresize = setParentSize;
+
