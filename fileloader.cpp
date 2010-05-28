@@ -182,7 +182,7 @@ void FileLoader::createFlashCards(QString dstPath)
 
         for (int i = 0; i < m_lstFlashCards.size(); i++){   // collection loop
             QString strwrk;
-            strwrk = "FlashCardCollectionNames[" + QString::number(i) + "] = '" + m_lstFlashCards[i]->collectionName() + "';\n";
+            strwrk = "FlashCardCollectionNames[" + QString::number(i) + "] = '" + m_lstFlashCards[i]->collectionName() + " (" + QString::number(m_lstFlashCards[i]->entries().size()) + ")';\n";
             file.write(strwrk.toUtf8());
             strwrk = "FlashCardCollection[" + QString::number(i) + "] = [\n";
             file.write(strwrk.toUtf8());
