@@ -30,11 +30,9 @@ private:
 public slots:
     void showFiles(FileLoader* fileLoader);
     void handleFileLoaderError(QString);
-//    void handleFileLoaderError(int);
 
 private slots:
     void on_btnRun_clicked();
-    void on_pushButton_clicked();
     void on_btnBrowseTSVFiles_clicked();
 
 signals:

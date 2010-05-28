@@ -94,24 +94,6 @@ void Dialog::writeFlashCard()
 
 }
 
-#include <QResource>
-#include <QTextStream>
-
-
-
-//
-// debug
-//
-void Dialog::on_pushButton_clicked()
-{
-    QFile file(":/SimpleFlashCard/info_plist");
-
-
-    qDebug() << "file.size = " << file.size();
-
-}
-
-
 void Dialog::showFiles(FileLoader* fileLoader)
 {
     qDebug() << "Dialog::showFiles start";

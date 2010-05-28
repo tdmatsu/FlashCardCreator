@@ -36,13 +36,13 @@
     </rect>
    </property>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>560</x>
      <y>30</y>
      <width>101</width>
-     <height>91</height>
+     <height>71</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -57,13 +57,6 @@
      <widget class="QPushButton" name="btnRun">
       <property name="text">
        <string>Run</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="pushButton">
-      <property name="text">
-       <string>Debug</string>
       </property>
      </widget>
     </item>
