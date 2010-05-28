@@ -23,6 +23,9 @@ Dialog::Dialog(QWidget *parent) :
     QObject::connect(fileLoader, SIGNAL(fileLoaded(FileLoader*)), this, SLOT(showFiles(FileLoader*)));
     QObject::connect(this, SIGNAL(runclicked(QString)), fileLoader, SLOT(createFlashCards(QString)));
     QObject::connect(fileLoader, SIGNAL(fileLoaderError(QString)), this, SLOT(handleFileLoaderError(QString)));
+
+    setWindowIcon(QIcon(":/SimpleFlashCard/icon_png"));
+    setWindowTitle("SimpleFlashCard creator");
 }
 
 
