@@ -1,33 +1,30 @@
-
-
 body
 {
 	width:98%;
-/*	color:white; */
-/*	background-image: url(../gfx/background.jpg);*/
+	color: #ffffff;
+	background-color: #000033;
 	background-repeat: repeat-x;
 }
-/*
+
 a:link
 {
-	color:white;
+	color: #6699CC;
 }
 
 a:visited
 {
-	color:white;
+	color: #6699CC;
 }
 
 a:hover
 {
-	color:yellow;
+	color: #6699CC;
 }
 
 a:active
 {
-	color:yellow;
+	color: #6699CC;
 }
-*/
 
 #lblInfo
 {
