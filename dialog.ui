@@ -23,7 +23,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Loaded input files (Tab separated text)</string>
+    <string>Input files</string>
    </property>
   </widget>
   <widget class="QTableView" name="tableView">
