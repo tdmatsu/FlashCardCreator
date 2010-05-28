@@ -216,6 +216,9 @@ void FileLoader::createFlashCards(QString dstPath)
                     line.replace("\"","\"\"");
                     QStringList wrk = line.split("\t");
                     QString writeline = ",\"" + wrk[0] + "\\t" + wrk[1] + "\"" + "\n";
+                    if(j == 0){
+                        writeline = writeline.mid(1);   // remove the preceeding comma
+                    }
                     file.write(writeline.toUtf8());
                 }
             }
