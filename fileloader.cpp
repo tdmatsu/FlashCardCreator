@@ -2,6 +2,7 @@
 
 #include <QDebug>
 #include <QFile>
+#include <QDir>
 
 const QString OUTPUT_FOLDER_NAME = "Output";
 const QString OUTPUT_WIDGET_FOLDER_NAME = "SimpleFlashCard";
@@ -131,9 +132,6 @@ QVariant FileLoader::headerData(int section, Qt::Orientation orientation, int ro
     return QAbstractItemModel::headerData(section, orientation, role);
 }
 
-#include <QDir>
-#include <QFileDialog>
-
 /*
 
   dstPath = path specified by the user
@@ -147,35 +145,33 @@ void FileLoader::createFlashCards(QString dstPath)
 
     qDebug() << "FileLoader::createFlashCards() Destination = " << dstPath;
 
-    QString strOutputFolder;       // output folder
     QDir dirOutput;
 
     // Creating output folder
     // In case of name conflicts, it will append "(n)" to the folder name, n being an incremental number
     // The path to the created folder is stored to dirOutput
-    QString folderName = OUTPUT_FOLDER_NAME;
+    {
+        QString folderName = OUTPUT_FOLDER_NAME;
 
-    for (int i = 1; ;i++){
-        // coin the output folder path
-        dirOutput.setPath(dstPath + "/" + folderName);
-        // does it already exist?
-        if (dirOutput.exists()){
-            folderName = OUTPUT_FOLDER_NAME + "(" + QString::number(i) + ")";
-            if (i > 1000){
-                // Folders "Output(1...1000)" are already in the same directory, which is not unlikely to happen
-                emit fileLoaderError("Output directory coudn't be created!");
-                return;
+        for (int i = 1; ;i++){
+            // coin the output folder path
+            dirOutput.setPath(dstPath + "/" + folderName);
+            // does it already exist?
+            if (dirOutput.exists()){
+                folderName = OUTPUT_FOLDER_NAME + "(" + QString::number(i) + ")";
+                if (i > 1000){
+                    // Folders "Output(1...1000)" are already in the same directory, which is not unlikely to happen
+                    emit fileLoaderError("Output directory coudn't be created!");
+                    return;
+                }
+            } else {
+                // output folder path determined (stored to dirOutput)
+                break;
             }
-        } else {
-            // output folder path determined (stored to dirOutput)
-            break;
         }
     }
 
-    folderName += "/" + OUTPUT_WIDGET_FOLDER_NAME;
-    strOutputFolder += "/" + OUTPUT_WIDGET_FOLDER_NAME;
-
-    // Create folders
+    // Create output folders
     qDebug() << "creating output folders...";
     qDebug() << dirOutput.mkpath(OUTPUT_WIDGET_FOLDER_NAME + "/" + OUTPUT_WIDGET_STYLE_FOLDER_NAME);
     qDebug() << dirOutput.mkpath(OUTPUT_WIDGET_FOLDER_NAME + "/" + OUTPUT_WIDGET_SCRIPT_FOLDER_NAME);
@@ -210,7 +206,7 @@ void FileLoader::createFlashCards(QString dstPath)
     // Move to data folder (shouldn't fail)
     Q_ASSERT(dirOutput.cd(OUTPUT_WIDGET_DATA_FOLDER_NAME));
 
-    // Export XML files
+    // Write XML files
     for (int i = 0; i < m_lstFlashCards.size(); i++){
         QFile file(dirOutput.path() + "/" + m_lstFlashCards[i]->fileXMLName());
         if (!file.open(QIODevice::WriteOnly | QIODevice::Text)){
@@ -232,7 +228,7 @@ void FileLoader::createFlashCards(QString dstPath)
         }
     }
 
-    // Writing filelist.js
+    // Write filelist.js
     {
         QFile file(dirOutput.path() + "/" + FILENAME_FILELIST_JS);
         if (!file.open(QIODevice::WriteOnly | QIODevice::Text)){
