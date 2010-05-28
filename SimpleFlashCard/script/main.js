@@ -14,7 +14,7 @@ var blnStartup = true;
 // Debug utilities
 ////////////////////////////////////////////////////////////////////////////////
 // Debug flag
-var DEBUG = true;
+var DEBUG = false;
 
 
 var strDebugLog = "";

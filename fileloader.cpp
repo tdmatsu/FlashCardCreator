@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QFile>
 #include <QDir>
+#include <QProcess>
 
 const QString OUTPUT_FOLDER_NAME = "Output";
 const QString OUTPUT_WIDGET_FOLDER_NAME = "SimpleFlashCard";
@@ -12,7 +13,6 @@ const QString OUTPUT_WIDGET_SCRIPT_FOLDER_NAME = "script";
 const QString OUTPUT_WIDGET_DATA_FOLDER_NAME = "data";
 
 const QString FILENAME_DATA_JS = "data.js";
-const QString FILENAME_RENAME_BAT = "rename.bat";
 
 
 FileLoader::FileLoader(QObject * parent)
@@ -50,10 +50,10 @@ void FileLoader::loadFiles(QStringList fileNames)
 
             qDebug() << lstEntries.size() << " entries";
 
-            QString fileXMLName = fileNames[i];
-            fileXMLName = fileXMLName.mid(fileXMLName.lastIndexOf("/") + 1);
-            fileXMLName = fileXMLName.left(fileXMLName.size() - 4) + ".xml";
-            FlashCards* flashCards = new FlashCards(lstEntries, fileNames[i], fileXMLName, this);
+            QString collectionName = fileNames[i];
+            collectionName = collectionName.mid(collectionName.lastIndexOf("/") + 1);
+            collectionName = collectionName.left(collectionName.size() - 4);
+            FlashCards* flashCards = new FlashCards(lstEntries, fileNames[i], collectionName, this);
 
             // add the entries
             m_lstFlashCards.append(flashCards);
@@ -177,19 +177,6 @@ void FileLoader::createFlashCards(QString dstPath)
     qDebug() << dirOutput.mkpath(OUTPUT_WIDGET_FOLDER_NAME + "/" + OUTPUT_WIDGET_SCRIPT_FOLDER_NAME);
     qDebug() << dirOutput.mkpath(OUTPUT_WIDGET_FOLDER_NAME + "/" + OUTPUT_WIDGET_DATA_FOLDER_NAME);
 
-    // Write rename.bat
-    {
-        QFile file(dirOutput.path() + "/" + FILENAME_RENAME_BAT);
-        if (!file.open(QIODevice::WriteOnly | QIODevice::Text)){
-            emit fileLoaderError("Couldn't open output file: " + file.fileName());
-            return;
-        }else{
-            file.write(QString("del " + OUTPUT_WIDGET_FOLDER_NAME + ".wgz\n").toUtf8());
-            file.write(QString("rename " + OUTPUT_WIDGET_FOLDER_NAME + ".zip " + OUTPUT_WIDGET_FOLDER_NAME + ".wgz\n").toUtf8());
-            file.close();
-        }
-    }
-
     // Move to the widget directory (shouldn't fail)
     Q_ASSERT(dirOutput.cd(OUTPUT_WIDGET_FOLDER_NAME));
 
@@ -204,10 +191,10 @@ void FileLoader::createFlashCards(QString dstPath)
     qDebug() << QFile::copy(":/SimpleFlashCard/main_js", dirOutput.path() + "/" + OUTPUT_WIDGET_SCRIPT_FOLDER_NAME + "/main.js");
 
     // Move to data folder (shouldn't fail)
-    Q_ASSERT(dirOutput.cd(OUTPUT_WIDGET_DATA_FOLDER_NAME));
+//    Q_ASSERT(dirOutput.cd(OUTPUT_WIDGET_DATA_FOLDER_NAME));
 
     // Write data.js
-    QFile file(dirOutput.path() + "/" + FILENAME_DATA_JS);
+    QFile file(dirOutput.path() + "/" + OUTPUT_WIDGET_DATA_FOLDER_NAME + "/" + FILENAME_DATA_JS);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)){
         emit fileLoaderError("Couldn't open output file: " + file.fileName());
         return;
@@ -217,7 +204,7 @@ void FileLoader::createFlashCards(QString dstPath)
 
         for (int i = 0; i < m_lstFlashCards.size(); i++){   // collection loop
             QString strwrk;
-            strwrk = "FlashCardCollectionNames[" + QString::number(i) + "] = '" + m_lstFlashCards[i]->fileName() + "';\n";
+            strwrk = "FlashCardCollectionNames[" + QString::number(i) + "] = '" + m_lstFlashCards[i]->collectionName() + "';\n";
             file.write(strwrk.toUtf8());
             strwrk = "FlashCardCollection[" + QString::number(i) + "] = [\n";
             file.write(strwrk.toUtf8());
@@ -236,6 +223,40 @@ void FileLoader::createFlashCards(QString dstPath)
         }
         file.close();
     }
-}
 
+    // zip it up
+    if (QFile("C:/Program Files/7-Zip/7z.exe").exists())
+    {
+        qDebug() << "zipping...";
+        QString zip_program = "C:/Program Files/7-Zip/7z.exe";
+        QStringList zip_arguments;
+        zip_arguments << "a" << (dirOutput.path() + ".zip") << (dirOutput.path() + "\\");
+
+        QProcess *zip_process = new QProcess(this);
+        zip_process->start(zip_program, zip_arguments);
+        zip_process->waitForFinished(5000);
+
+        QFile zip_file(dirOutput.path() + ".zip");
+        if(zip_file.exists())
+        {
+            qDebug() << "zip file already exists! renaming...";
+            zip_file.rename(zip_file.fileName().left(zip_file.fileName().size()-4) + ".wgz");
+        }
+    }
+
+    // open the output folder
+    if (QFile("C:/WINNT/explorer.exe").exists())
+    {
+        qDebug() << "opening output folder...";
+
+        QString program = "C:/WINNT/explorer.exe";
+        QStringList arguments;
+        QDir dirwrk = dirOutput;
+        dirwrk.cdUp();
+        arguments << dirwrk.path().replace("/", "\\");
+
+        QProcess *process = new QProcess(this);
+        process->start(program, arguments);
+    }
+}
 
