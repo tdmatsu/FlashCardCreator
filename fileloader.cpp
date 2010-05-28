@@ -247,12 +247,22 @@ void FileLoader::createFlashCards(QString dstPath)
         }
     }
 
+    QString strExplorerPath1 = "C:/WINNT/explorer.exe";
+    QString strExplorerPath2 = "C:/WINDOWS/explorer.exe";
+    QString strExplorerPath;
+
+    if (QFile(strExplorerPath1).exists()) {
+        strExplorerPath = strExplorerPath1;
+    } else if (QFile(strExplorerPath2).exists()) {
+        strExplorerPath = strExplorerPath2;
+    }
+
     // open the output folder
-    if (QFile("C:/WINNT/explorer.exe").exists())
+    if (strExplorerPath.size())
     {
         qDebug() << "opening output folder...";
 
-        QString program = "C:/WINNT/explorer.exe";
+        QString program = strExplorerPath;
         QStringList arguments;
         QDir dirwrk = dirOutput;
         dirwrk.cdUp();
