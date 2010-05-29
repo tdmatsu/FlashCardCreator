@@ -154,22 +154,22 @@ void FileLoader::createFlashCards(QString dstPath)
 
     // Create output folders
     qDebug() << "creating output folders...";
-    qDebug() << dirOutput.mkpath(OUTPUT_WIDGET_FOLDER_NAME + "/" + OUTPUT_WIDGET_STYLE_FOLDER_NAME);
-    qDebug() << dirOutput.mkpath(OUTPUT_WIDGET_FOLDER_NAME + "/" + OUTPUT_WIDGET_SCRIPT_FOLDER_NAME);
-    qDebug() << dirOutput.mkpath(OUTPUT_WIDGET_FOLDER_NAME + "/" + OUTPUT_WIDGET_DATA_FOLDER_NAME);
+    dirOutput.mkpath(OUTPUT_WIDGET_FOLDER_NAME + "/" + OUTPUT_WIDGET_STYLE_FOLDER_NAME);
+    dirOutput.mkpath(OUTPUT_WIDGET_FOLDER_NAME + "/" + OUTPUT_WIDGET_SCRIPT_FOLDER_NAME);
+    dirOutput.mkpath(OUTPUT_WIDGET_FOLDER_NAME + "/" + OUTPUT_WIDGET_DATA_FOLDER_NAME);
 
-    // Move to the widget directory (shouldn't fail)
-    Q_ASSERT(dirOutput.cd(OUTPUT_WIDGET_FOLDER_NAME));
+    // Move to the widget directory
+    dirOutput.cd(OUTPUT_WIDGET_FOLDER_NAME);
 
     // Copy files from the resource
     qDebug() << "copying files...";
-    qDebug() << QFile::copy(":/SimpleFlashCard/info_plist", dirOutput.path() + "/info.plist");
-    qDebug() << QFile::copy(":/SimpleFlashCard/icon_png", dirOutput.path() + "/icon.png");
-    qDebug() << QFile::copy(":/SimpleFlashCard/index_html", dirOutput.path() + "/index.html");
-    qDebug() << QFile::copy(":/SimpleFlashCard/style_css", dirOutput.path() + "/" + OUTPUT_WIDGET_STYLE_FOLDER_NAME + "/simpleflashcard.css");
-    qDebug() << QFile::copy(":/SimpleFlashCard/flashcards_js", dirOutput.path() + "/" + OUTPUT_WIDGET_SCRIPT_FOLDER_NAME + "/flashcards.js");
-    qDebug() << QFile::copy(":/SimpleFlashCard/ajax_js", dirOutput.path() + "/" + OUTPUT_WIDGET_SCRIPT_FOLDER_NAME + "/Ajax.js");
-    qDebug() << QFile::copy(":/SimpleFlashCard/main_js", dirOutput.path() + "/" + OUTPUT_WIDGET_SCRIPT_FOLDER_NAME + "/main.js");
+    QFile::copy(":/SimpleFlashCard/info_plist", dirOutput.path() + "/info.plist");
+    QFile::copy(":/SimpleFlashCard/icon_png", dirOutput.path() + "/icon.png");
+    QFile::copy(":/SimpleFlashCard/index_html", dirOutput.path() + "/index.html");
+    QFile::copy(":/SimpleFlashCard/style_css", dirOutput.path() + "/" + OUTPUT_WIDGET_STYLE_FOLDER_NAME + "/simpleflashcard.css");
+    QFile::copy(":/SimpleFlashCard/flashcards_js", dirOutput.path() + "/" + OUTPUT_WIDGET_SCRIPT_FOLDER_NAME + "/flashcards.js");
+    QFile::copy(":/SimpleFlashCard/ajax_js", dirOutput.path() + "/" + OUTPUT_WIDGET_SCRIPT_FOLDER_NAME + "/Ajax.js");
+    QFile::copy(":/SimpleFlashCard/main_js", dirOutput.path() + "/" + OUTPUT_WIDGET_SCRIPT_FOLDER_NAME + "/main.js");
 
     // Write data.js
     QFile file(dirOutput.path() + "/" + OUTPUT_WIDGET_DATA_FOLDER_NAME + "/" + FILENAME_DATA_JS);
