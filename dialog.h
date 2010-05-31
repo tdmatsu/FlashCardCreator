@@ -18,6 +18,9 @@ public:
 
 protected:
     void changeEvent(QEvent *e);
+    void dragEnterEvent ( QDragEnterEvent * event );
+    void dropEvent ( QDropEvent * event );
+    void dragMoveEvent ( QDragMoveEvent * event );
 
 private:
     Ui::Dialog *ui;
@@ -26,6 +29,7 @@ private:
     void writeFlashCard();
 
     QString m_strDstPath;
+    QStringList m_dragFileNames;
 
 public slots:
     void showFiles(FileLoader* fileLoader);

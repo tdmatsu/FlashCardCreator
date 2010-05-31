@@ -4,6 +4,8 @@
 #include <QFileDialog>
 #include <QTextStream>
 #include <QDebug>
+#include <QDragEnterEvent>
+#include <QUrl>
 
 #include "fileloader.h"
 
@@ -26,6 +28,8 @@ Dialog::Dialog(QWidget *parent) :
 
     setWindowIcon(QIcon(":/SimpleFlashCard/icon_png"));
     setWindowTitle("SimpleFlashCard creator");
+
+    setAcceptDrops(true);
 }
 
 
@@ -133,4 +137,35 @@ void Dialog::on_btnRun_clicked()
     if (dst.size()){
         emit runclicked(dst);
     }
+}
+
+void Dialog::dragEnterEvent ( QDragEnterEvent * event )
+{
+    m_dragFileNames.clear();
+    if(event->mimeData()->hasUrls()){
+        QList<QUrl> urls = event->mimeData()->urls();
+        for (int i = 0; i < urls.size(); i++){
+            if(urls[i].toString().right(4) == ".tsv"){
+                m_dragFileNames.append(urls[i].toString());
+            }
+        }
+    }
+
+    if (m_dragFileNames.size()){
+        event->acceptProposedAction();
+    }
+
+}
+
+void Dialog::dropEvent ( QDropEvent * event )
+{
+    for(int i = 0; i < m_dragFileNames.size(); i++){
+        m_dragFileNames[i] = m_dragFileNames[i].replace("file:///", "");
+        qDebug() << m_dragFileNames[i];
+    }
+    emit filesSelected(m_dragFileNames);
+}
+
+void Dialog::dragMoveEvent ( QDragMoveEvent * event )
+{
 }

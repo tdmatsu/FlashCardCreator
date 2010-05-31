@@ -18,12 +18,12 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>211</width>
-     <height>21</height>
+     <width>256</width>
+     <height>13</height>
     </rect>
    </property>
    <property name="text">
-    <string>Input files</string>
+    <string>Input files (you can also drag and drop files)</string>
    </property>
   </widget>
   <widget class="QTableView" name="tableView">
