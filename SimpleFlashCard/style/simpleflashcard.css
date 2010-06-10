@@ -1,8 +1,8 @@
 body
 {
 	width:98%;
-	color: #ffffff;
-	background-color: #000033;
+/*	color: #ffffff;	*/
+/*	background-color: #000033;	*/
 	background-repeat: repeat-x;
 }
 
@@ -62,7 +62,43 @@ a:active
 	color:red;
 }
 
-#page_start
+#section_startpage
+{
+/*	font-size:20pt;*/
+}
+
+#collection_name
 {
 	font-size:20pt;
+}
+
+#collection_count
+{
+	font-size:14pt;
+}
+
+div.entry_index
+{
+}
+
+div.entry_text1
+{
+	color: #666666;
+	font-size:24pt;
+}
+
+div.entry_text2
+{
+	color: #6666FF;
+	font-size:24pt;
+}
+
+#section_info
+{
+	font-size:16pt;
+}
+
+div.class_entry
+{
+	margin:15px;
 }
