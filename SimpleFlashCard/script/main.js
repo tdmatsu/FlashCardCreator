@@ -4,6 +4,8 @@
 
 function $(e){return document.getElementById(e);}
 
+var flashCards;
+
 ////////////////////////////////////////////////////////////////////////////////
 // Debug utilities
 ////////////////////////////////////////////////////////////////////////////////
@@ -50,41 +52,29 @@ function init()
 	}
 
 	// initialize the start page
-	initStartPage();
-	
-	// initialize the flash cards
-	initFlashCards();
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-// initialize the start page
-//----------------------------------------------------------------------------------------------------------------------
-function initStartPage()
-{
 	var strwrk = "";
-
 	for (var i = 0; i < FlashCardCollectionNames.length; i++){
 		strwrk = strwrk + "<span id='collection_name'><a href='javascript:startFlashCards(" + i + ");'>" + FlashCardCollectionNames[i] + "</a></span><br>";
 		strwrk = strwrk + "<span id='collection_count'>" +  FlashCardCollection[i].length + " entries</span><br><br>";
 	}
-
 	$("section_startpage").innerHTML = strwrk;
 }
 
-//----------------------------------------------------------------------------------------------------------------------
-// initialize the flash cards
-//----------------------------------------------------------------------------------------------------------------------
-function initFlashCards()
-{
-}
 
-
+//----------------------------------------------------------------------------------------------------------------------
+// Start the flashcards
+//----------------------------------------------------------------------------------------------------------------------
 function startFlashCards(index)
 {
-	var entries = getFlashCards(index);
+	// copy the entries
+	var entries = new Array();
+	for(var i = 0; i < FlashCardCollection[index].length; i++){
+	 	entries[i] = FlashCardCollection[index][i];
+	}
 
-	var flashCards = new FlashCards();
+	flashCards = new FlashCards();
 	flashCards.setEntries(entries);
+	flashCards.setExitFunction("gotoStartPage();");
 	flashCards.setRegion($("section_flashcards"));
 	flashCards.startFlashCard();
 	
@@ -97,17 +87,7 @@ function startFlashCards(index)
 //----------------------------------------------------------------------------------------------------------------------
 function gotoStartPage()
 {
+	flashCards = null;
 	$("section_startpage").style.display = "block";
 	$("section_flashcards").style.display = "none";
 }
-
-
-function getFlashCards(index)
-{
-	var ret = new Array();
-	for(var i = 0; i < FlashCardCollection[index].length; i++){
-	 	ret[i] = FlashCardCollection[index][i];
-	}
-	return ret;
-}
-

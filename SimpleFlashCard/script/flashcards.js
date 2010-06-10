@@ -32,7 +32,7 @@ function FlashCards()
 	
 	var updateCount = function()
 	{
-		$("section_info").innerHTML = m_entries.length + "/" + m_entries_cnt + " entrie(s) left";
+		$("section_info").innerHTML = m_entries.length + "/" + m_entries_cnt + " entrie(s) left<br><a href='javascript:" + m_strExitFunction + "'>Go back to Start Page</a>";
 	}
 	
 	this.startFlashCard = function()
